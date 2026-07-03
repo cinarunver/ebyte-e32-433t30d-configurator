@@ -155,6 +155,7 @@ class E32Gui(ctk.CTk):
         for btn in self._action_buttons:
             btn.configure(state=state)
         self._connect_btn.configure(state=state)
+        self._refresh_btn.configure(state=state)
 
     def _require_transport(self) -> SerialTransport | None:
         if self._transport is None:
@@ -182,7 +183,10 @@ class E32Gui(ctk.CTk):
     def _drain(self) -> None:
         try:
             while True:
-                kind, payload = self._q.get_nowait()
+                try:
+                    kind, payload = self._q.get_nowait()
+                except queue.Empty:
+                    break
                 if kind == "log":
                     self._log(str(payload))
                 elif kind == "status":
@@ -193,9 +197,10 @@ class E32Gui(ctk.CTk):
                     self._transport = payload  # type: ignore[assignment]
                 elif kind == "done":
                     self._set_busy(False)
-        except queue.Empty:
-            pass
-        self.after(50, self._drain)
+        except Exception as exc:  # never let the UI pump die
+            self._log(f"Internal error: {exc}")
+        finally:
+            self.after(50, self._drain)
 
     # -- form <-> Params -----------------------------------------------------
     def _load_params_into_form(self, p: Params) -> None:
@@ -236,16 +241,17 @@ class E32Gui(ctk.CTk):
 
     def _worker_connect(self, device: str) -> None:
         try:
-            t = SerialTransport(device, baud=9600)
-        except TransportError as exc:
-            self._post("status", "Connection failed")
-            self._post("log", str(exc))
+            try:
+                t = SerialTransport(device, baud=9600)
+            except TransportError as exc:
+                self._post("status", "Connection failed")
+                self._post("log", str(exc))
+                return
+            self._post("transport", t)
+            self._post("status", f"Connected to {device} @ 9600 8N1")
+            self._post("log", f"Opened {device}. Press Read to fetch current params.")
+        finally:
             self._post("done")
-            return
-        self._post("transport", t)
-        self._post("status", f"Connected to {device} @ 9600 8N1")
-        self._post("log", f"Opened {device}. Press Read to fetch current params.")
-        self._post("done")
 
     def _on_read(self) -> None:
         t = self._require_transport()

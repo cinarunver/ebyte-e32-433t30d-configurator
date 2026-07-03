@@ -28,7 +28,7 @@ jobs:
         run: pytest -q
 
   binary:
-    name: Binary (${{ matrix.os }})
+    name: Binaries (${{ matrix.os }})
     needs: test
     runs-on: ${{ matrix.os }}
     strategy:
@@ -36,11 +36,14 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            artifact: e32config-linux-x86_64
+            suffix: linux-x86_64
+            ext: ""
           - os: macos-latest
-            artifact: e32config-macos
+            suffix: macos
+            ext: ""
           - os: windows-latest
-            artifact: e32config-windows.exe
+            suffix: windows
+            ext: ".exe"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -50,18 +53,24 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .[build]
-      - name: Build single-file binary
-        run: pyinstaller --onefile --name e32config src/e32config/__main__.py
-      - name: Rename artifact (unix)
+      - name: Build both binaries
+        run: python scripts/build.py
+      - name: Rename artifacts (unix)
         if: runner.os != 'Windows'
-        run: mv dist/e32config dist/${{ matrix.artifact }}
-      - name: Rename artifact (windows)
+        run: |
+          mv dist/e32config dist/e32config-${{ matrix.suffix }}
+          mv dist/e32config-gui dist/e32config-gui-${{ matrix.suffix }}
+      - name: Rename artifacts (windows)
         if: runner.os == 'Windows'
-        run: Rename-Item dist/e32config.exe ${{ matrix.artifact }}
+        run: |
+          Rename-Item dist/e32config.exe e32config-${{ matrix.suffix }}.exe
+          Rename-Item dist/e32config-gui.exe e32config-gui-${{ matrix.suffix }}.exe
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact }}
-          path: dist/${{ matrix.artifact }}
+          name: e32config-${{ matrix.suffix }}
+          path: |
+            dist/e32config-${{ matrix.suffix }}${{ matrix.ext }}
+            dist/e32config-gui-${{ matrix.suffix }}${{ matrix.ext }}
 
   release:
     name: Attach binaries to release

@@ -55,22 +55,27 @@ jobs:
           pip install -e .[build]
       - name: Build both binaries
         run: python scripts/build.py
-      - name: Rename artifacts (unix)
-        if: runner.os != 'Windows'
+      - name: Package Linux artifacts
+        if: matrix.os == 'ubuntu-latest'
         run: |
-          mv dist/e32config dist/e32config-${{ matrix.suffix }}
-          mv dist/e32config-gui dist/e32config-gui-${{ matrix.suffix }}
-      - name: Rename artifacts (windows)
-        if: runner.os == 'Windows'
+          cd dist
+          zip -j e32config-${{ matrix.suffix }}.zip e32config
+          zip -j e32config-gui-${{ matrix.suffix }}.zip e32config-gui
+      - name: Package macOS artifacts
+        if: matrix.os == 'macos-latest'
         run: |
-          Rename-Item dist/e32config.exe e32config-${{ matrix.suffix }}.exe
-          Rename-Item dist/e32config-gui.exe e32config-gui-${{ matrix.suffix }}.exe
+          cd dist
+          zip -j e32config-${{ matrix.suffix }}.zip e32config
+          zip -r e32config-gui-${{ matrix.suffix }}.zip e32config-gui.app
+      - name: Package Windows artifacts
+        if: matrix.os == 'windows-latest'
+        run: |
+          Compress-Archive -Path dist/e32config.exe -DestinationPath dist/e32config-${{ matrix.suffix }}.zip
+          Compress-Archive -Path dist/e32config-gui.exe -DestinationPath dist/e32config-gui-${{ matrix.suffix }}.zip
       - uses: actions/upload-artifact@v4
         with:
           name: e32config-${{ matrix.suffix }}
-          path: |
-            dist/e32config-${{ matrix.suffix }}${{ matrix.ext }}
-            dist/e32config-gui-${{ matrix.suffix }}${{ matrix.ext }}
+          path: dist/*.zip
 
   release:
     name: Attach binaries to release

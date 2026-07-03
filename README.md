@@ -91,29 +91,43 @@ pip install -e .[dev]
 python -m e32config      # or: e32config
 ```
 
-### Option 3 — standalone binary (no Python needed)
+### Option 3 — prebuilt release archives (no Python needed)
 
-Prebuilt single-file executables for **Linux, macOS, and Windows** are attached
-to each [GitHub Release](https://github.com/USER/e32config/releases). Download
-the one for your OS, mark it executable, and run:
+Prebuilt standalone binaries for **Linux, macOS, and Windows** are attached to each [GitHub Release](https://github.com/USER/e32config/releases) inside **`.zip`** archives. Using zip files preserves the executable permission so they can run directly.
 
+1. Download the `.zip` archive for your OS and interface (CLI or GUI).
+2. Extract the archive (double-click the zip file).
+3. Run the application:
+
+#### macOS (GUI App Bundle)
+Extracting the GUI zip gives you `e32config-gui.app`. Double-click to run.
+> ⚠️ **macOS Gatekeeper Note:** Because the app is unsigned, macOS will block it on first launch ("developer cannot be verified").
+> - **To run:** Right-click (or Control-click) `e32config-gui.app` -> choose **Open** -> click **Open** in the warning dialog.
+> - Alternatively, remove the quarantine attribute in Terminal:
+>   ```bash
+>   xattr -d com.apple.quarantine e32config-gui.app
+>   ```
+
+#### macOS / Linux (TUI / CLI)
+Extract and run the binary inside Terminal:
 ```bash
-# Linux / macOS
-chmod +x e32config-linux-x86_64
-./e32config-linux-x86_64
+./e32config-macos        # macOS CLI
+# or
+./e32config-linux-x86_64  # Linux CLI
 ```
+> ⚠️ **macOS CLI Note:** If macOS blocks the CLI binary, clear the quarantine attribute:
+> ```bash
+> xattr -d com.apple.quarantine e32config-macos
+> ```
 
-```powershell
-# Windows
-.\e32config-windows.exe
-```
+#### Windows (GUI / CLI)
+Extract the zip and double-click `e32config-gui-windows.exe` or run `e32config-windows.exe` from a prompt.
 
 Build one yourself:
 
 ```bash
 pip install -e .[build]
-pyinstaller --onefile --name e32config src/e32config/__main__.py
-# result: dist/e32config
+python scripts/build.py
 ```
 
 > **BSD note:** PyInstaller does not officially support the BSDs. On FreeBSD/

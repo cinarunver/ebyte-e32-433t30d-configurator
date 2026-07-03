@@ -41,12 +41,15 @@ def build_gui() -> None:
     --windowed suppresses a stray console; --collect-all customtkinter bundles
     its theme/asset JSON so the compiled app starts (without it the GUI fails).
     """
-    _run([
+    cmd = [
         sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean",
-        "--onefile", "--windowed", "--name", "e32config-gui",
+        "--windowed", "--name", "e32config-gui",
         "--collect-all", "customtkinter",
         str(SRC / "gui.py"),
-    ])
+    ]
+    if sys.platform != "darwin":
+        cmd.append("--onefile")
+    _run(cmd)
 
 
 def main() -> int:

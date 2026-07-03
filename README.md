@@ -122,6 +122,33 @@ pyinstaller --onefile --name e32config src/e32config/__main__.py
 
 ---
 
+## Build standalone binaries
+
+Both front-ends compile to single-file executables with PyInstaller:
+
+```bash
+pip install -e .[build]
+python scripts/build.py            # builds both -> ./dist
+python scripts/build.py --only gui # or just one
+```
+
+This produces `dist/e32config` (terminal) and `dist/e32config-gui` (windowed), with `.exe` on Windows. CI (`.github/workflows/build.yml`) builds both for Linux, macOS, and Windows on every push and attaches them to GitHub Releases on `v*` tags. BSD: install from source (PyInstaller is unsupported there).
+
+---
+
+## Two front-ends
+
+`e32config` ships two interchangeable interfaces over the same core — pick whichever suits you:
+
+| Interface | Launch (installed) | Launch (from source) | Best for |
+|-----------|--------------------|----------------------|----------|
+| **Terminal (TUI)** | `e32config` | `python -m e32config` | terminals, SSH, no display |
+| **Windowed (GUI)** | `e32config-gui` | `python -m e32config.gui` | desktop, mouse-driven use |
+
+Both do the same thing: pick a serial port, Connect, then Read / Write (save C0 / temp C2) / Version / Reset. Remember the module must be in **Mode 3 (M0=1, M1=1)** and wired for 9600 8N1 first.
+
+---
+
 ## Usage
 
 1. Set the module to **Mode 3** (M0=1, M1=1) and connect it via USB-TTL.

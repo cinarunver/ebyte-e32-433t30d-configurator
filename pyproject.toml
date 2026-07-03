@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "e32config"
+version = "0.1.0"
+description = "Cross-platform TUI to read and write Ebyte E32-433T30D (SX1278 LoRa) parameters over UART"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+keywords = ["lora", "e32", "ebyte", "sx1278", "serial", "tui", "433mhz"]
+dependencies = [
+    "pyserial>=3.5",
+    "textual>=0.60",
+    "customtkinter>=5.2",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+build = ["pyinstaller>=6.0"]
+
+[project.scripts]
+e32config = "e32config.__main__:main"
+e32config-gui = "e32config.__main__:gui_main"
+
+[project.urls]
+Homepage = "https://github.com/USER/e32config"
+Issues = "https://github.com/USER/e32config/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

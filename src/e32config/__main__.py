@@ -7,7 +7,7 @@ import sys
 
 def main() -> int:
     try:
-        from .app import run
+        from e32config.app import run
     except ImportError as exc:  # pragma: no cover - dependency guard
         print(f"Missing dependency: {exc}\nInstall with: pip install e32config", file=sys.stderr)
         return 1
@@ -17,7 +17,7 @@ def main() -> int:
 
 def gui_main() -> int:
     try:
-        from .gui import run
+        from e32config.gui import run
     except ImportError as exc:  # pragma: no cover - dependency guard
         print(f"Missing dependency: {exc}\nInstall with: pip install e32config", file=sys.stderr)
         return 1

@@ -8,12 +8,12 @@ from textual.app import App, ComposeResult
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.widgets import Button, Footer, Header, Input, Label, RichLog, Select
 
-from . import __version__, protocol
-from .protocol import Params, ProtocolError
-from .transport import (
+from e32config import __version__, protocol
+from e32config.protocol import Params, ProtocolError
+from e32config.transport import (
     PortInfo, SerialTransport, TransportError, list_serial_ports,
 )
-from .uimodel import (
+from e32config.uimodel import (
     ENUM_FIELDS, address_calc, channel_calc, describe, enum_options,
     parse_address, parse_channel,
 )

@@ -6,8 +6,8 @@ and data over the protocol layer, so every branch is unit-testable headlessly.
 
 from __future__ import annotations
 
-from . import protocol
-from .protocol import (
+from e32config import protocol
+from e32config.protocol import (
     AirRate, FEC, IODrive, Params, Parity, TransmissionMode, TxPower,
     UartBaud, WakeupTime,
 )

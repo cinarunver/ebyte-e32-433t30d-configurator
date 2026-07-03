@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "e32config"
-version = "0.1.0"
+version = "0.1.1"
 description = "Cross-platform TUI to read and write Ebyte E32-433T30D (SX1278 LoRa) parameters over UART"
 readme = "README.md"
 requires-python = ">=3.9"

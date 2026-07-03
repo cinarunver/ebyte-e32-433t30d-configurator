@@ -161,6 +161,14 @@ This produces `dist/e32config` (terminal) and `dist/e32config-gui` (windowed), w
 
 Both do the same thing: pick a serial port, Connect, then Read / Write (save C0 / temp C2) / Version / Reset. Remember the module must be in **Mode 3 (M0=1, M1=1)** and wired for 9600 8N1 first.
 
+### Terminal Interface (TUI)
+
+![Terminal Interface](docs/images/tui.png)
+
+### Windowed Interface (GUI)
+
+![Windowed Interface](docs/images/gui.png)
+
 ---
 
 ## Usage

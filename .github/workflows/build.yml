@@ -1,0 +1,80 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
+      - name: Run tests
+        run: pytest -q
+
+  binary:
+    name: Binary (${{ matrix.os }})
+    needs: test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: e32config-linux-x86_64
+          - os: macos-latest
+            artifact: e32config-macos
+          - os: windows-latest
+            artifact: e32config-windows.exe
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install + PyInstaller
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[build]
+      - name: Build single-file binary
+        run: pyinstaller --onefile --name e32config src/e32config/__main__.py
+      - name: Rename artifact (unix)
+        if: runner.os != 'Windows'
+        run: mv dist/e32config dist/${{ matrix.artifact }}
+      - name: Rename artifact (windows)
+        if: runner.os == 'Windows'
+        run: Rename-Item dist/e32config.exe ${{ matrix.artifact }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist/${{ matrix.artifact }}
+
+  release:
+    name: Attach binaries to release
+    needs: binary
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Publish release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*
